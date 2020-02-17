@@ -76,7 +76,7 @@ $(eval $(call SetupJavaCompiler,GENERATE_JDKBYTECODE, \
     JVM := $(JAVA_JAVAC), \
     JAVAC := $(NEW_JAVAC), \
     FLAGS := $(JDK_SOURCE_TARGET_FLAGS) --doclint-format html5 \
-        -encoding ascii -XDignore.symbol.file=true $(JAVAC_WARNINGS), \
+        -encoding utf-8 -XDignore.symbol.file=true $(JAVAC_WARNINGS), \
     SERVER_DIR := $(SJAVAC_SERVER_DIR), \
     SERVER_JVM := $(SJAVAC_SERVER_JAVA)))
 
@@ -86,7 +86,7 @@ $(eval $(call SetupJavaCompiler,GENERATE_JDKBYTECODE_NOWARNINGS, \
     JVM := $(JAVA_JAVAC), \
     JAVAC := $(NEW_JAVAC), \
     FLAGS := $(JDK_SOURCE_TARGET_FLAGS) \
-        -encoding ascii -XDignore.symbol.file=true $(DISABLE_WARNINGS), \
+        -encoding utf-8 -XDignore.symbol.file=true $(DISABLE_WARNINGS), \
     SERVER_DIR := $(SJAVAC_SERVER_DIR), \
     SERVER_JVM := $(SJAVAC_SERVER_JAVA)))
 
