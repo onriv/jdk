@@ -354,23 +354,23 @@ TEST_VM(utilities, json_missing_array_end) {
 TEST_VM(utilities, json_key_values_1) {
   JSON_GTest::test("/* comment */{ key1 : { \"key2\" : { \"key3\" : [ \"elem1\", \"elem2\","
           "{ \"key4\" : null }, 3 , 2 , 1 , 0 , -1 , -2 , -3 , true, false, null, ] }, \"key5\""
-          " : true }, \"key6\" : [ \"☃\" ], key7 : \"val\",}", true);
+          " : true }, \"key6\" : [ \"santa\" ], key7 : \"val\",}", true);
 }
 
 TEST_VM(utilities, json_key_values_2) {
   JSON_GTest::test("/* comment */ { \"key1\" : { \"key2\" : { \"key3\" : [ \"elem1\", \"elem2\","
           "{ \"key4\" : null }, 3 , 2 , 1 , 0 , -1 , -2 , -3 , true, false, null, ] }, \"key5\""
-          " : true }, \"key6\" : [ \"☃\" ], key7 : \"val\",}", true);
+          " : true }, \"key6\" : [ \"santa\" ], key7 : \"val\",}", true);
 }
 
 TEST_VM(utilities, json_quoted_symbols) {
-  JSON_GTest::test("/*comment*/{\"ff1 fsd\":{\"☃\":{\"☃\":[\"☃\",\"☃\"]},"
-          "\"☃\":true},\"☃\":[\"☃\"],\"foo\":\"☃\",}", true);
+  JSON_GTest::test("/*comment*/{\"ff1 fsd\":{\"santa\":{\"santa\":[\"santa\",\"santa\"]},"
+          "\"santa\":true},\"santa\":[\"santa\"],\"foo\":\"santa\",}", true);
 }
 
 TEST_VM(utilities, json_incorrect_key) {
-  JSON_GTest::test("/* comment */ { key1 error : { \"☃\" : { \"☃\" : [ \"☃\","
-          " \"☃\" ] }, \"☃\" : true }, \"baz\" : [ \"☃\" ], foo : \"☃\",}",
+  JSON_GTest::test("/* comment */ { key1 error : { \"santa\" : { \"santa\" : [ \"santa\","
+          " \"santa\" ] }, \"santa\" : true }, \"baz\" : [ \"santa\" ], foo : \"santa\",}",
           false); // first key needs to be quoted since it contains a space
 }
 
