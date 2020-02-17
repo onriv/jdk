@@ -50,9 +50,11 @@ import jdk.internal.misc.Unsafe;
  * single atomic {@code int} value to represent state. Subclasses
  * must define the protected methods that change this state, and which
  * define what that state means in terms of this object being acquired
- * or released.  Given these, the other methods in this class carry
- * out all queuing and blocking mechanics. Subclasses can maintain
- * other state fields, but only the atomically updated {@code int}
+ * or released. <strong>Given these, the other methods in this class carry
+ * out all queuing and blocking mechanics</strong>. Subclasses can maintain
+ * other state fields (for exmaple {@link ReentrantLock} maintains the information
+ * of successfully-accessed-lock thread),
+ * but only the atomically updated {@code int}
  * value manipulated using methods {@link #getState}, {@link
  * #setState} and {@link #compareAndSetState} is tracked with respect
  * to synchronization.
@@ -74,8 +76,8 @@ import jdk.internal.misc.Unsafe;
  * mechanical sense that when a shared mode acquire succeeds, the next
  * waiting thread (if one exists) must also determine whether it can
  * acquire as well. Threads waiting in the different modes share the
- * same FIFO queue. Usually, implementation subclasses support only
- * one of these modes, but both can come into play for example in a
+ * same FIFO queue. <strong>Usually, implementation subclasses support only
+ * one of these modes, but both can come into play</strong> (Can achieve both exclusive and shared modes) for example in a
  * {@link ReadWriteLock}. Subclasses that support only exclusive or
  * only shared modes need not define the methods supporting the unused mode.
  *
@@ -94,8 +96,10 @@ import jdk.internal.misc.Unsafe;
  *
  * <p>This class provides inspection, instrumentation, and monitoring
  * methods for the internal queue, as well as similar methods for
- * condition objects. These can be exported as desired into classes
- * using an {@code AbstractQueuedSynchronizer} for their
+ * condition objects. <strong>Provides monitoring and introspection methods
+ * for internal thread queues to see what they are</strong>
+ * These can be exported as desired into classes
+ * using an {@link AbstractQueuedSynchronizer} for their
  * synchronization mechanics.
  *
  * <p>Serialization of this class stores only the underlying atomic
@@ -120,15 +124,15 @@ import jdk.internal.misc.Unsafe;
  * </ul>
  *
  * Each of these methods by default throws {@link
- * UnsupportedOperationException}.  Implementations of these methods
+ * UnsupportedOperationException}.  <strong>Implementations of these methods
  * must be internally thread-safe, and should in general be short and
- * not block. Defining these methods is the <em>only</em> supported
+ * not block</strong>. Defining these methods is the <em>only</em> supported
  * means of using this class. All other methods are declared
  * {@code final} because they cannot be independently varied.
  *
  * <p>You may also find the inherited methods from {@link
- * AbstractOwnableSynchronizer} useful to keep track of the thread
- * owning an exclusive synchronizer.  You are encouraged to use them
+ * AbstractOwnableSynchronizer} useful to <p style="color: green">keep track of the thread
+ * owning an exclusive synchronizer.</p>  You are encouraged to use them
  * -- this enables monitoring and diagnostic tools to assist users in
  * determining which threads hold locks.
  *
@@ -160,15 +164,20 @@ import jdk.internal.misc.Unsafe;
  * to return {@code false} if {@link #hasQueuedPredecessors} (a method
  * specifically designed to be used by fair synchronizers) returns
  * {@code true}.  Other variations are possible.
+ * maybe {@link java.util.concurrent.locks.ReentrantLock.FairSync} implemented by the upper style
+ * each time in  {@link java.util.concurrent.locks.ReentrantLock.FairSync#tryAcquire(int)}
+ * return false ? for fair contend? after a simple look in
+ * {@link java.util.concurrent.locks.ReentrantLock.FairSync#tryAcquire(int)}
+ * It has some complicated logics too
  *
  * <p>Throughput and scalability are generally highest for the
  * default barging (also known as <em>greedy</em>,
  * <em>renouncement</em>, and <em>convoy-avoidance</em>) strategy.
  * While this is not guaranteed to be fair or starvation-free, earlier
- * queued threads are allowed to recontend before later queued
+ * queued threads are allowed to recontend(re competition/contention) before later queued
  * threads, and each recontention has an unbiased chance to succeed
  * against incoming threads.  Also, while acquires do not
- * &quot;spin&quot; in the usual sense, they may perform multiple
+ * &quot;spin&quot; in the usual sense (Look at this position, what it means), they may perform multiple
  * invocations of {@code tryAcquire} interspersed with other
  * computations before blocking.  This gives most of the benefits of
  * spins when exclusive synchronization is only briefly held, without
@@ -189,7 +198,7 @@ import jdk.internal.misc.Unsafe;
  *
  * <h2>Usage Examples</h2>
  *
- * <p>Here is a non-reentrant mutual exclusion lock class that uses
+ * <p>Here is a non-reentrant mutual exclusion lock class <p style="color:red">(non-reentrant exclusive)</p>that uses
  * the value zero to represent the unlocked state, and one to
  * represent the locked state. While a non-reentrant lock
  * does not strictly require recording of the current owner
@@ -217,6 +226,7 @@ import jdk.internal.misc.Unsafe;
  *       if (!isHeldExclusively())
  *         throw new IllegalMonitorStateException();
  *       setExclusiveOwnerThread(null);
+ *       // aready has lock, so change it without cas is OK
  *       setState(0);
  *       return true;
  *     }
@@ -316,7 +326,11 @@ public abstract class AbstractQueuedSynchronizer
      * Overview.
      *
      * The wait queue is a variant of a "CLH" (Craig, Landin, and
-     * Hagersten) lock queue. CLH locks are normally used for
+     * Hagersten) lock queue.
+     * Reference for CLH:
+     *  - http://www.debugger.wiki/article/html/1553086800341437
+     *  -
+     * CLH locks are normally used for
      * spinlocks.  We instead use them for blocking synchronizers by
      * including explicit ("prev" and "next") links plus a "status"
      * field that allow nodes to signal successors when releasing
@@ -605,6 +619,8 @@ public abstract class AbstractQueuedSynchronizer
      */
     private static void signalNext(Node h) {
         Node s;
+        // here zero is a default value for int
+        // any defined status should no be zero
         if (h != null && (s = h.next) != null && s.status != 0) {
             s.getAndUnsetStatus(WAITING);
             LockSupport.unpark(s.waiter);
@@ -652,6 +668,10 @@ public abstract class AbstractQueuedSynchronizer
          */
 
         for (;;) {
+            /* when enter from {@link acquire(int)}
+             * node is always null
+             * acquire(null, arg, false, false, false, 0L);
+             */
             if (!first && (pred = (node == null) ? null : node.prev) != null &&
                 !(first = (head == pred))) {
                 if (pred.status < 0) {

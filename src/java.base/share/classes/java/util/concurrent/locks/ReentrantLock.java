@@ -35,9 +35,10 @@
 
 package java.util.concurrent.locks;
 
+import jdk.internal.vm.annotation.ReservedStackAccess;
+
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
-import jdk.internal.vm.annotation.ReservedStackAccess;
 
 /**
  * A reentrant mutual exclusion {@link Lock} with the same basic
@@ -144,6 +145,9 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * available under fair vs nonfair rules. Locking methods
          * perform initialTryLock check before relaying to
          * corresponding AQS acquire methods.
+         *
+         * this method should be true if already has lock
+         *
          */
         abstract boolean initialTryLock();
 
@@ -215,6 +219,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
+     * 测试
      * Sync object for non-fair locks
      */
     static final class NonfairSync extends Sync {
