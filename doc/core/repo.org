@@ -1,0 +1,39 @@
+* REPOS
+
+forked from git@github.com:openjdk/jdk.git & git@github.com:openjdk/jdk14.git
+
+branch remote settings
+
+#+begin_src 
+# git remote -v
+origin  git@github.com:onriv/jdk.git (fetch)
+origin  git@github.com:onriv/jdk.git (push)
+upstream        git@github.com:openjdk/jdk.git (fetch)
+upstream        git@github.com:openjdk/jdk.git (push)
+upstream_14     git@github.com:openjdk/jdk14.git (fetch)
+upstream_14     git@github.com:openjdk/jdk14.git (push)
+#+end_src
+
+branch upstream settings
+
+#+begin_src 
+# git branch -vv
+master       87b8ac6d5f [origin/master: ahead 1] 暂时添加个人文档
+master_jdk   74bee68872 [upstream/master: behind 2] 8239069: C2: SIGSEGV in IdealGraphPrinter::walk_nodes due to C->root() being NULL     
+master_jdk14 5ed4b9f2c0 [upstream_14/master] Added tag jdk-14+36 for changeset bc54620a3848
+#+end_src
+
+跟随设置方式：
+
+#+begin_src 
+git branch -u upstream/master master_jdk
+git branch -u upstream_14/master master_jdk14
+#+end_src
+
+目前计划的跟随的方式:
+
+1. master_jdk14和master_jdk分支从上游拉取
+2. 拉取后、master分支rebase至master_jdk，然后推送至个人仓库
+3. (现在个人提交不多，后续可能改为从上游合并)
+4. master_jdk14稳定后（即openjdk 14 发布），个人分支rebase至master_jdk14分支
+5. 至于此后如何跟随主分支学习，尚未确定
